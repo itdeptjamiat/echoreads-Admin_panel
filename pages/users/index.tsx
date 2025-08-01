@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import UserTable from '../../components/users/UserTable';
+import UserForm from '../../components/users/UserForm';
 import { fetchUsers } from '../../lib/api';
 
 interface User {
@@ -23,6 +24,7 @@ const UsersList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -77,34 +79,50 @@ const UsersList: React.FC = () => {
       <div className="p-6">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">User Management</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">User Management</h1>
+            <p className="text-sm text-gray-600">Manage user accounts and permissions</p>
+          </div>
           
-          {/* Search Input */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <svg 
-                className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-4 md:mt-0">
+            <button
+              onClick={() => setShowAddUserForm(true)}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </div>
+              Add User
+            </button>
             <button
               onClick={loadUsers}
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:bg-gray-400 transition-colors"
             >
               {loading ? 'Loading...' : 'Refresh'}
             </button>
+          </div>
+        </div>
+
+        {/* Search Input */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <input
+              type="text"
+              placeholder="Search users by name, email, or username..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <svg 
+              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
         </div>
 
@@ -166,6 +184,17 @@ const UsersList: React.FC = () => {
             Showing {filteredUsers.length} of {users.length} users
             {searchTerm && ` matching "${searchTerm}"`}
           </div>
+        )}
+
+        {/* Add User Form Modal */}
+        {showAddUserForm && (
+          <UserForm
+            onSuccess={() => {
+              setShowAddUserForm(false);
+              loadUsers(); // Refresh the user list
+            }}
+            onCancel={() => setShowAddUserForm(false)}
+          />
         )}
       </div>
     </AdminLayout>

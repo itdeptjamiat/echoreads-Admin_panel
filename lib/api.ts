@@ -425,6 +425,42 @@ export const deleteUser = async (uid: string): Promise<{ success: boolean; messa
   }
 };
 
+// Create user API
+export const createUser = async (userData: {
+  email: string;
+  username: string;
+  password: string;
+  name: string;
+}): Promise<{ success: boolean; data?: any; message?: string }> => {
+  try {
+    console.log('createUser called with data:', { ...userData, password: '[HIDDEN]' });
+    const token = getToken();
+    if (!token) {
+      return { success: false, message: 'No authentication token found' };
+    }
+
+    const response = await fetch('/api/users/create', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(userData),
+    });
+
+    console.log('Create user response status:', response.status);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log('Create user error response:', errorData);
+      return { success: false, message: errorData.message || errorData.error || 'Failed to create user' };
+    }
+
+    const data = await response.json();
+    console.log('Create user success response:', data);
+    return { success: true, data: data.data || data, message: data.message || 'User created successfully' };
+  } catch (error: unknown) {
+    console.error('Error creating user:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+};
+
 export const logoutUser = (): void => {
   clearAuthData();
 };
