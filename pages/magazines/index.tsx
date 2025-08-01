@@ -75,41 +75,39 @@ const MagazinesList: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="space-y-6">
         {/* Enhanced Header Section */}
-        <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex-1 min-w-0">
-                <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                  Magazine Management
-                </h1>
-                <p className="mt-2 text-sm text-gray-600">
-                  Manage and organize your digital magazine collection
-                </p>
-              </div>
-              
-              {/* Add New Magazine Button */}
-              <div className="mt-5 flex lg:mt-0 lg:ml-4">
-                <Link 
-                  href="/magazines/add"
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add New Magazine
-                </Link>
-              </div>
+        <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                Magazine Management
+              </h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Manage and organize your digital magazine collection
+              </p>
+            </div>
+            
+            {/* Add New Magazine Button */}
+            <div className="mt-4 lg:mt-0 lg:ml-4">
+              <Link 
+                href="/magazines/add"
+                className="inline-flex items-center px-4 lg:px-6 py-2 lg:py-3 border border-transparent text-sm lg:text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              >
+                <svg className="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="hidden sm:inline">Add New Magazine</span>
+                <span className="sm:hidden">Add Magazine</span>
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Statistics Cards */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {/* Total Magazines */}
-            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -118,15 +116,15 @@ const MagazinesList: React.FC = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Magazines</p>
-                  <p className="text-2xl font-bold gradient-text">{stats.total}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Magazines</p>
+                  <p className="text-lg lg:text-2xl font-bold text-blue-600">{stats.total}</p>
                 </div>
               </div>
             </div>
 
             {/* Free Magazines */}
-            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -135,15 +133,15 @@ const MagazinesList: React.FC = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Free Magazines</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.free}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Free Magazines</p>
+                  <p className="text-lg lg:text-2xl font-bold text-green-600">{stats.free}</p>
                 </div>
               </div>
             </div>
 
             {/* Pro Magazines */}
-            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -152,15 +150,15 @@ const MagazinesList: React.FC = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pro Magazines</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.pro}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Pro Magazines</p>
+                  <p className="text-lg lg:text-2xl font-bold text-purple-600">{stats.pro}</p>
                 </div>
               </div>
             </div>
 
             {/* Total Downloads */}
-            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -169,20 +167,19 @@ const MagazinesList: React.FC = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Downloads</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.totalDownloads.toLocaleString()}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Downloads</p>
+                  <p className="text-lg lg:text-2xl font-bold text-orange-600">{stats.totalDownloads.toLocaleString()}</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">

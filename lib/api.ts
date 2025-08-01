@@ -395,23 +395,29 @@ export const deleteMagazine = async (mid: number): Promise<{ success: boolean; m
 // Delete user API
 export const deleteUser = async (uid: string): Promise<{ success: boolean; message?: string }> => {
   try {
+    console.log('deleteUser called with uid:', uid);
     const token = getToken();
     if (!token) {
+      console.log('No token found');
       return { success: false, message: 'No authentication token found' };
     }
 
+    console.log('Making delete request to /api/users/delete with uid:', uid);
     const response = await fetch('/api/users/delete', {
       method: 'DELETE',
       headers: getAuthHeaders(),
       body: JSON.stringify({ uid }),
     });
 
+    console.log('Delete response status:', response.status);
     if (!response.ok) {
       const errorData = await response.json();
+      console.log('Delete error response:', errorData);
       return { success: false, message: errorData.message || errorData.error || 'Failed to delete user' };
     }
 
     const data = await response.json();
+    console.log('Delete success response:', data);
     return { success: true, message: data.message || 'User deleted successfully' };
   } catch (error: unknown) {
     console.error('Error deleting user:', error);

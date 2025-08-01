@@ -23,10 +23,13 @@ export default async function handler(
   }
 
   try {
+    console.log('Delete user API called with body:', req.body);
+    
     // Get authorization header from the request
     const authHeader = req.headers['authorization'];
     
     if (!authHeader) {
+      console.log('No authorization header found');
       return res.status(401).json({
         success: false,
         message: 'Authorization header is required'
@@ -37,11 +40,14 @@ export default async function handler(
     const { uid } = req.body;
     
     if (!uid) {
+      console.log('No uid found in request body');
       return res.status(400).json({
         success: false,
         message: 'User ID (uid) is required'
       });
     }
+
+    console.log('Deleting user with uid:', uid);
 
     // Forward request to external API
     const externalResponse = await fetch('https://api.echoreads.online/api/v1/admin/delete-user', {
