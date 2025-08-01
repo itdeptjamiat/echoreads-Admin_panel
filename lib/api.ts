@@ -338,7 +338,7 @@ export const fetchMagazines = async (): Promise<{ success: boolean; data?: any[]
 
 // Create magazine API
 export const createMagazine = async (magazineData: {
-  name: string; image: string; file: string; type: 'free' | 'pro'; description: string; category?: string;
+  name: string; image: string; file: string; type: 'free' | 'pro'; magzineType: 'magzine' | 'article' | 'digest'; description: string; category?: string;
 }): Promise<{ success: boolean; data?: any; message?: string }> => {
   try {
     const token = getToken();

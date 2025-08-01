@@ -13,12 +13,19 @@ const magazineTypes = [
   { value: 'pro', label: 'Pro' }
 ];
 
+const magazineContentTypes = [
+  { value: 'magzine', label: 'Magazine' },
+  { value: 'article', label: 'Article' },
+  { value: 'digest', label: 'Digest' }
+];
+
 interface MagazineFormProps {
   onSubmit?: (data: {
     name: string;
     description: string;
     category: string;
     type: 'free' | 'pro';
+    magzineType: 'magzine' | 'article' | 'digest';
     image: string;
     file: string;
     coverImage: File | null;
@@ -33,6 +40,7 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
   const [description, setDescription] = useState(initialData?.description || '');
   const [category, setCategory] = useState(initialData?.category || '');
   const [type, setType] = useState<'free' | 'pro'>('free');
+  const [magzineType, setMagzineType] = useState<'magzine' | 'article' | 'digest'>('magzine');
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -125,6 +133,7 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
         description,
         category,
         type,
+        magzineType,
         image: coverImageUrl,
         file: pdfFileUrl,
         coverImage,
@@ -212,7 +221,7 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
 
       <div>
         <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-          Magazine Type
+          Access Type
         </label>
         <select
           id="type"
@@ -224,6 +233,25 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
           {magazineTypes.map((magType) => (
             <option key={magType.value} value={magType.value}>
               {magType.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="magzineType" className="block text-sm font-medium text-gray-700 mb-1">
+          Content Type
+        </label>
+        <select
+          id="magzineType"
+          value={magzineType}
+                          onChange={(e) => setMagzineType(e.target.value as 'magzine' | 'article' | 'digest')}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        >
+          {magazineContentTypes.map((contentType) => (
+            <option key={contentType.value} value={contentType.value}>
+              {contentType.label}
             </option>
           ))}
         </select>
@@ -283,7 +311,7 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Magazine PDF</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Document File</label>
         <div className="flex items-center gap-4">
           <input
             id="pdfFile"
@@ -308,7 +336,7 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
                 style={{ width: `${uploadProgress.pdf}%` }}
               ></div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Uploading PDF... {uploadProgress.pdf}%</p>
+            <p className="text-xs text-gray-500 mt-1">Uploading document... {uploadProgress.pdf}%</p>
           </div>
         )}
       </div>

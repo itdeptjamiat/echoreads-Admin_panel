@@ -13,6 +13,7 @@ const AddMagazine: React.FC = () => {
     description: string;
     category: string;
     type: 'free' | 'pro';
+    magzineType: 'magzine' | 'article' | 'digest ';
     image: string;
     file: string;
     coverImage: File | null;
@@ -24,6 +25,7 @@ const AddMagazine: React.FC = () => {
         description: formData.description,
         category: formData.category,
         type: formData.type,
+        magzineType: formData.magzineType,
         image: formData.image,
         file: formData.file,
       });
@@ -34,6 +36,7 @@ const AddMagazine: React.FC = () => {
         description: formData.description,
         category: formData.category,
         type: formData.type,
+        magzineType: formData.magzineType,
         image: formData.image,
         file: formData.file,
       });

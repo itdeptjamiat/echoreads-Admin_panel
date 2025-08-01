@@ -8,6 +8,7 @@ interface Magazine {
   image: string;
   file: string;
   type: 'free' | 'pro';
+  magzineType: 'magzine' | 'article' | 'digest';
   description?: string;
   category?: string;
   isActive?: boolean;
@@ -103,9 +104,16 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
   };
 
   const getTypeBadgeColor = (type: string) => {
-    return type === 'pro' 
-      ? 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-200' 
-      : 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-200';
+    switch (type) {
+      case 'magzine':
+        return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-200';
+      case 'article':
+        return 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-200';
+      case 'digest':
+        return 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-200';
+      default:
+        return 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-200';
+    }
   };
 
   const getImageUrl = (imageUrl: string, magazineName: string) => {
@@ -157,7 +165,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
             </div>
             <input
               type="text"
-              placeholder="Search magazines by name, category, or type..."
+              placeholder="Search content by name, category, or type..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
@@ -245,7 +253,10 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.type)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.magzineType)}`}>
+                          {magazine.magzineType.toUpperCase()}
+                        </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${magazine.type === 'free' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
                           {magazine.type.toUpperCase()}
                         </span>
                       </div>
@@ -324,7 +335,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cover</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name & Description</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Content & Access</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Downloads</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Created</th>
@@ -353,9 +364,14 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.type)}`}>
-                        {magazine.type.toUpperCase()}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.magzineType)}`}>
+                          {magazine.magzineType.toUpperCase()}
+                        </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${magazine.type === 'free' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
+                          {magazine.type.toUpperCase()}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {magazine.category ? (

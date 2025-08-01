@@ -44,6 +44,7 @@ const MagazinesList: React.FC = () => {
       magazine.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       magazine.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       magazine.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      magazine.magzineType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       magazine.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [magazines, searchTerm]);
@@ -66,11 +67,12 @@ const MagazinesList: React.FC = () => {
   // Calculate statistics
   const stats = useMemo(() => {
     const total = magazines.length;
-    const free = magazines.filter((m: any) => m.type === 'free').length;
-    const pro = magazines.filter((m: any) => m.type === 'pro').length;
+    const magazineCount = magazines.filter((m: any) => m.magzineType === 'magzine').length;
+    const articleCount = magazines.filter((m: any) => m.magzineType === 'article').length;
+    const digestCount = magazines.filter((m: any) => m.magzineType === 'digest').length;
     const totalDownloads = magazines.reduce((sum: number, m: any) => sum + (m.downloads || 0), 0);
     
-    return { total, free, pro, totalDownloads };
+    return { total, magazineCount, articleCount, digestCount, totalDownloads };
   }, [magazines]);
 
   return (
@@ -106,7 +108,7 @@ const MagazinesList: React.FC = () => {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {/* Total Magazines */}
+            {/* Magazines */}
             <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -117,30 +119,30 @@ const MagazinesList: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Magazines</p>
-                  <p className="text-lg lg:text-2xl font-bold text-blue-600">{stats.total}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Magazines</p>
+                  <p className="text-lg lg:text-2xl font-bold text-blue-600">{stats.magazineCount}</p>
                 </div>
               </div>
             </div>
 
-            {/* Free Magazines */}
+            {/* Articles */}
             <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
                 </div>
                 <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Free Magazines</p>
-                  <p className="text-lg lg:text-2xl font-bold text-green-600">{stats.free}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Articles</p>
+                  <p className="text-lg lg:text-2xl font-bold text-green-600">{stats.articleCount}</p>
                 </div>
               </div>
             </div>
 
-            {/* Pro Magazines */}
+            {/* Digests */}
             <div className="stats-card bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -151,8 +153,8 @@ const MagazinesList: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Pro Magazines</p>
-                  <p className="text-lg lg:text-2xl font-bold text-purple-600">{stats.pro}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Digests</p>
+                  <p className="text-lg lg:text-2xl font-bold text-purple-600">{stats.digestCount}</p>
                 </div>
               </div>
             </div>

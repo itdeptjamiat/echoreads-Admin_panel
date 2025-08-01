@@ -5,8 +5,9 @@ interface CreateMagazineRequest {
   name: string;
   image: string;
   file: string;
-  type: 'free' | 'pro';
-  description: string;
+  type?: 'free' | 'pro';
+  magzineType?: 'magzine' | 'article' | 'digest';
+  description?: string;
   category?: string;
 }
 
@@ -49,21 +50,29 @@ export default async function handler(
       });
     }
 
-    const { name, image, file, type, description, category }: CreateMagazineRequest = req.body;
+    const { name, image, file, type, magzineType, description, category }: CreateMagazineRequest = req.body;
 
     // Validate required fields
-    if (!name || !image || !file || !type) {
+    if (!name || !image || !file) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: name, image, file, and type are required'
+        message: 'Missing required fields: name, image, and file are required'
       });
     }
 
-    // Validate type enum
-    if (!['free', 'pro'].includes(type)) {
+    // Validate type enum if provided
+    if (type && !['free', 'pro'].includes(type)) {
       return res.status(400).json({
         success: false,
         message: 'Type must be either "free" or "pro"'
+      });
+    }
+
+    // Validate magzineType enum if provided
+    if (magzineType && !['magzine', 'article', 'digest'].includes(magzineType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'MagzineType must be either "magzine", "article", or "digest"'
       });
     }
 
@@ -72,9 +81,16 @@ export default async function handler(
       name,
       image,
       file,
-      type,
+      type: type || 'free',
+      fileType: 'pdf',
+      magzineType: magzineType || 'magzine',
+      isActive: true,
+      category: category || 'other',
+      downloads: 0,
       description: description || '',
-      category: category || 'other'
+      rating: 0,
+      reviews: [],
+      createdAt: new Date()
     };
 
     // Forward request to external API
