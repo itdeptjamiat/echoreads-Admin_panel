@@ -4,6 +4,7 @@ interface GetUserDetailsResponse {
   success: boolean;
   message: string;
   data?: any;
+  error?: any;
 }
 
 export default async function handler(
@@ -48,8 +49,14 @@ export default async function handler(
       });
     }
 
-    // Forward request to external API
-    const externalResponse = await fetch(`https://api.echoreads.online/api/v1/user/profile/${uid}`, {
+    console.log('Fetching user details for UID:', uid);
+
+    // Use the correct endpoint that works with the data structure
+    const endpoint = `https://api.echoreads.online/api/v1/user/profile/${uid}`;
+    
+    console.log('Using endpoint:', endpoint);
+    
+    const externalResponse = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -57,10 +64,23 @@ export default async function handler(
       }
     });
 
-    const data = await externalResponse.json();
+    console.log('Response status:', externalResponse.status);
 
-    // Forward the response from external API
-    return res.status(externalResponse.status).json(data);
+    if (externalResponse.ok) {
+      const data = await externalResponse.json();
+      console.log('Success response data:', data);
+      
+      // Forward the response from external API
+      return res.status(externalResponse.status).json(data);
+    } else {
+      const errorData = await externalResponse.json();
+      console.log('Error response:', errorData);
+      return res.status(externalResponse.status).json({
+        success: false,
+        message: errorData.message || errorData.error || 'Failed to fetch user details',
+        error: errorData
+      });
+    }
 
   } catch (error) {
     console.error('Error fetching user details:', error);
