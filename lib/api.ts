@@ -392,6 +392,60 @@ export const deleteMagazine = async (mid: number): Promise<{ success: boolean; m
   }
 };
 
+// Get magazine details by MID API
+export const getMagazineDetails = async (mid: string): Promise<{ success: boolean; data?: any; message?: string }> => {
+  try {
+    console.log('getMagazineDetails called with mid:', mid);
+    const token = getToken();
+    if (!token) {
+      return { success: false, message: 'No authentication token found' };
+    }
+
+    const response = await fetch(`/api/magazines/${mid}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, message: errorData.message || errorData.error || 'Failed to fetch magazine details' };
+    }
+
+    const data = await response.json();
+    return { success: true, data: data.data || data };
+  } catch (error: unknown) {
+    console.error('Error fetching magazine details:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+};
+
+// Get user details by UID API
+export const getUserDetails = async (uid: string): Promise<{ success: boolean; data?: any; message?: string }> => {
+  try {
+    console.log('getUserDetails called with uid:', uid);
+    const token = getToken();
+    if (!token) {
+      return { success: false, message: 'No authentication token found' };
+    }
+
+    const response = await fetch(`/api/users/${uid}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, message: errorData.message || errorData.error || 'Failed to fetch user details' };
+    }
+
+    const data = await response.json();
+    return { success: true, data: data.data || data };
+  } catch (error: unknown) {
+    console.error('Error fetching user details:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+};
+
 // Delete user API
 export const deleteUser = async (uid: string): Promise<{ success: boolean; message?: string }> => {
   try {

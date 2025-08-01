@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { deleteUser } from '../../lib/api';
 
 interface User {
@@ -40,13 +41,14 @@ const UserTable: React.FC<UserTableProps> = ({
   totalItems,
   onRefresh
 }) => {
+  const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const handleViewDetails = (id: string) => {
-    console.log('View details for user:', id);
-    // Navigate to user detail page or open modal
+  const handleViewDetails = (uid: number) => {
+    console.log('View details for user uid:', uid);
+    router.push(`/users/${uid}`);
   };
 
   const handleDeleteClick = (uid: number, name: string) => {
@@ -135,48 +137,27 @@ const UserTable: React.FC<UserTableProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Users Management</h2>
-          <p className="text-slate-600 mt-1">Manage user accounts and subscriptions</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => onRefresh?.()}
-            className="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      {/* Search and Stats */}
-      <div className="bg-white rounded-2xl shadow-soft border border-slate-200/50 p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      {/* Search Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1 max-w-md">
-            <label htmlFor="search" className="sr-only">Search users</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
               <input
-                id="search"
                 type="text"
-                placeholder="Search users by name, email, or ID..."
+                placeholder="Search users by name, email, or username..."
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
-          <div className="flex items-center space-x-4 text-sm text-slate-600">
-            <span>Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} users</span>
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} users
           </div>
         </div>
       </div>
@@ -240,8 +221,8 @@ const UserTable: React.FC<UserTableProps> = ({
 
               {/* Actions */}
               <div className="flex items-center space-x-2">
-                      <button
-                  onClick={() => handleViewDetails(user._id)}
+                <button
+                  onClick={() => handleViewDetails(user.uid)}
                   className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,8 +230,8 @@ const UserTable: React.FC<UserTableProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                   View
-                      </button>
-                      <button
+                </button>
+                <button
                   onClick={() => handleDeleteClick(user.uid, user.name)}
                   disabled={deletingId === user.uid.toString()}
                   className="inline-flex items-center justify-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -265,9 +246,9 @@ const UserTable: React.FC<UserTableProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   )}
-                      </button>
-                    </div>
-        </div>
+                </button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -275,21 +256,21 @@ const UserTable: React.FC<UserTableProps> = ({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="bg-white rounded-2xl shadow-soft border border-slate-200/50 p-6">
-        <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-slate-600">
               Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} results
             </div>
-          <div className="flex items-center space-x-2">
-            <button
+            <div className="flex items-center space-x-2">
+              <button
                 onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-                className="inline-flex items-center px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
+                disabled={currentPage === 1}
+                className="inline-flex items-center px-3 py-2 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              Previous
-            </button>
+                Previous
+              </button>
               
               <div className="flex items-center space-x-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -299,7 +280,7 @@ const UserTable: React.FC<UserTableProps> = ({
                     className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                       currentPage === page
                         ? 'bg-blue-600 text-white'
-                        : 'text-slate-700 hover:bg-slate-100'
+                        : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
                     }`}
                   >
                     {page}
@@ -307,16 +288,16 @@ const UserTable: React.FC<UserTableProps> = ({
                 ))}
               </div>
               
-            <button
+              <button
                 onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-                className="inline-flex items-center px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              Next
+                disabled={currentPage === totalPages}
+                className="inline-flex items-center px-3 py-2 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                Next
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-            </button>
+              </button>
             </div>
           </div>
         </div>
@@ -340,19 +321,19 @@ const UserTable: React.FC<UserTableProps> = ({
                   </div>
                 )}
               </div>
-              <div className="items-center px-4 py-3">
-                <button
-                  onClick={() => handleDeleteConfirm(showDeleteConfirm)}
-                  className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mb-2"
-                  disabled={deletingId === showDeleteConfirm}
-                >
-                  {deletingId === showDeleteConfirm ? 'Deleting...' : 'Delete'}
-                </button>
+              <div className="flex justify-center space-x-4 mt-6">
                 <button
                   onClick={handleDeleteCancel}
-                  className="px-4 py-2 bg-gray-200 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteConfirm(showDeleteConfirm)}
+                  disabled={deletingId === showDeleteConfirm}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-red-400 transition-colors duration-200"
+                >
+                  {deletingId === showDeleteConfirm ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
