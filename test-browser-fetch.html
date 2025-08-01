@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Testing API endpoint...');
+                
+                const response = await fetch('/api/r2-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileName: 'test.jpg',
+                        fileType: 'image/jpeg',
+                    }),
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    resultDiv.innerHTML = `Error: ${response.status} - ${errorText}`;
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.uploadURL) {
+                    resultDiv.innerHTML = `
+                        <h3>✅ API Test Successful!</h3>
+                        <p>Upload URL received: ${data.uploadURL.substring(0, 100)}...</p>
+                        <p>The API is working correctly.</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ API Test Failed</h3>
+                        <p>No upload URL in response</p>
+                        <p>Response: ${JSON.stringify(data)}</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `
+                    <h3>❌ Fetch Error</h3>
+                    <p>Error: ${error.message}</p>
+                    <p>This might be a CORS issue or the API is not accessible.</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 
