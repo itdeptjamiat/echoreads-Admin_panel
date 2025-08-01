@@ -162,8 +162,8 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
   return (
     <div className="space-y-6">
       {/* Enhanced Search and Controls */}
-      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +218,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
 
       {/* Mobile Card List */}
       {!loading && (
-        <div className="block lg:hidden px-6">
+        <div className="block lg:hidden">
           <div className="space-y-4">
             {magazines.length === 0 && (
               <div className="text-center py-12">
@@ -237,7 +237,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
             {magazines.map((magazine, index) => (
               <div
                 key={magazine.id || magazine.mid}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 transform hover:scale-[1.02]"
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all duration-200 transform hover:scale-[1.02]"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex gap-4 items-start">
@@ -245,7 +245,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                     <img
                       src={getImageUrl(magazine.image, magazine.name)}
                       alt={`${magazine.name} cover`}
-                      className="w-20 h-28 object-cover rounded-lg shadow-sm border border-gray-200 magazine-cover"
+                      className="w-16 h-24 object-cover rounded-lg shadow-sm border border-gray-200 magazine-cover"
                       onError={(e) => handleImageError(e, magazine.name)}
                     />
                   </div>
@@ -253,38 +253,36 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">{magazine.name}</h3>
+                        <h3 className="text-base font-semibold text-gray-900 truncate">{magazine.name}</h3>
                         {magazine.description && (
                           <p className="mt-1 text-sm text-gray-600 line-clamp-2">{magazine.description}</p>
                         )}
                       </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.magzineType)}`}>
-                          {magazine.magzineType.toUpperCase()}
-                        </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${magazine.type === 'free' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
-                          {magazine.type.toUpperCase()}
-                        </span>
-                      </div>
                     </div>
                     
-                    <div className="mt-3 flex flex-wrap gap-2 items-center">
+                    <div className="mt-3 flex flex-wrap gap-1 items-center">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getTypeBadgeColor(magazine.magzineType)}`}>
+                        {magazine.magzineType.toUpperCase()}
+                      </span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${magazine.type === 'free' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
+                        {magazine.type.toUpperCase()}
+                      </span>
                       {magazine.category && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
                           {magazine.category}
                         </span>
                       )}
-                      
-                      <div className="flex items-center text-xs text-gray-500">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    </div>
+                    
+                    <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        {magazine.downloads || 0} downloads
+                        {magazine.downloads || 0}
                       </div>
-                      
-                      <div className="flex items-center text-xs text-gray-500">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         {formatDate(magazine.createdAt || '')}
@@ -296,9 +294,9 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                 <div className="mt-4 flex gap-2">
                   <button
                     onClick={() => handleView(magazine.mid || 0)}
-                    className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
@@ -306,35 +304,29 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
                   </button>
                   <button
                     onClick={() => handleEdit(magazine.id || magazine.mid?.toString() || '')}
-                    className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Edit
                   </button>
-                  
                   <button
                     onClick={() => handleDeleteClick(magazine.id || magazine.mid?.toString() || '', magazine.name)}
                     disabled={deletingId === (magazine.id || magazine.mid?.toString())}
-                    className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {deletingId === (magazine.id || magazine.mid?.toString()) ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-700" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Deleting...
-                      </>
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
                     ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete
-                      </>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
                     )}
+                    {deletingId === (magazine.id || magazine.mid?.toString()) ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
               </div>
@@ -480,7 +472,7 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
 
       {/* Enhanced Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700">
               Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
@@ -539,35 +531,32 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
           <div className="relative p-8 border w-96 shadow-lg rounded-md bg-white">
             <div className="text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Delete Magazine
               </h3>
               <div className="mt-2 px-7 py-3">
                 <p className="text-sm text-gray-500">
-                  Are you sure you want to delete "{magazines.find(m => (m.id || m.mid?.toString()) === showDeleteConfirm)?.name}"?
-                  This action cannot be undone.
+                  Are you sure you want to delete this magazine? This action cannot be undone.
                 </p>
+                {deleteError && (
+                  <div className="mt-4 px-4 py-3 text-red-600 bg-red-100 border border-red-200 rounded-md">
+                    <p className="text-sm">{deleteError}</p>
+                  </div>
+                )}
               </div>
-              {deleteError && (
-                <div className="mt-4 px-4 py-3 text-red-600 bg-red-100 border border-red-200 rounded-md">
-                  <p>{deleteError}</p>
-                </div>
-              )}
-              <div className="items-center px-4 py-3">
-                <button
-                  onClick={() => handleDeleteConfirm(showDeleteConfirm)}
-                  className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                  disabled={deletingId === showDeleteConfirm}
-                >
-                  {deletingId === showDeleteConfirm ? 'Deleting...' : 'Delete'}
-                </button>
-              </div>
-              <div className="items-center px-4 py-3">
+              <div className="flex justify-center space-x-4 mt-6">
                 <button
                   onClick={handleDeleteCancel}
-                  className="px-4 py-2 bg-gray-200 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteConfirm(showDeleteConfirm)}
+                  disabled={deletingId === showDeleteConfirm}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-red-400 transition-colors duration-200"
+                >
+                  {deletingId === showDeleteConfirm ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>

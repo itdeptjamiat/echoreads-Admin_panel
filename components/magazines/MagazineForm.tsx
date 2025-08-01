@@ -36,145 +36,142 @@ interface MagazineFormProps {
 }
 
 const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initialData }) => {
-  const [name, setName] = useState(initialData?.title || '');
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [category, setCategory] = useState(initialData?.category || '');
+  const [formData, setFormData] = useState({
+    name: initialData?.title || '',
+    description: initialData?.description || '',
+    category: initialData?.category || ''
+  });
   const [type, setType] = useState<'free' | 'pro'>('free');
   const [magzineType, setMagzineType] = useState<'magzine' | 'article' | 'digest'>('magzine');
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ cover: 0, pdf: 0 });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState<string>('');
 
   const router = useRouter();
 
-  const handleCoverImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
       // Validate file
       const validation = validateFile(file, ['image/jpeg', 'image/png', 'image/webp'], 10 * 1024 * 1024); // 10MB for images
       if (!validation.valid) {
-        setErrors({ ...errors, coverImage: validation.error || 'Invalid file' });
+        setError(validation.error || 'Invalid image file');
         return;
       }
       
-      setErrors({ ...errors, coverImage: '' });
-      setCoverImage(file);
+      setError('');
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handlePdfFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
       // Validate file
-      const validation = validateFile(file, ['application/pdf'], 50 * 1024 * 1024); // 50MB for PDFs
+      const validation = validateFile(file, ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], 50 * 1024 * 1024); // 50MB for documents
       if (!validation.valid) {
-        setErrors({ ...errors, pdfFile: validation.error || 'Invalid file' });
+        setError(validation.error || 'Invalid document file');
         return;
       }
       
-      setErrors({ ...errors, pdfFile: '' });
-      setPdfFile(file);
+      setError('');
+      setSelectedFile(file);
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setUploading(true);
-    setErrors({});
+    setLoading(true);
+    setError('');
 
     try {
-      let coverImageUrl = '';
-      let pdfFileUrl = '';
+      let imageUrl = '';
+      let fileUrl = '';
 
-      // Upload cover image if provided
-      if (coverImage) {
-        setUploadProgress(prev => ({ ...prev, cover: 25 }));
+      // Upload image if provided
+      if (selectedImage) {
+        setUploadProgress(25);
         try {
-          const coverResult = await simpleUpload(coverImage, 'cover');
-          if (!coverResult.success) {
-            setErrors({ coverImage: coverResult.error || 'Failed to upload cover image' });
-            setUploading(false);
+          const imageResult = await simpleUpload(selectedImage, 'cover');
+          if (!imageResult.success) {
+            setError(imageResult.error || 'Failed to upload image');
+            setLoading(false);
             return;
           }
-          coverImageUrl = coverResult.url || '';
-          setUploadProgress(prev => ({ ...prev, cover: 100 }));
-        } catch (error) {
-          setErrors({ coverImage: 'Failed to upload cover image' });
-          setUploading(false);
+          imageUrl = imageResult.url || '';
+          setUploadProgress(50);
+        } catch (err) {
+          setError('Failed to upload image');
+          setLoading(false);
           return;
         }
       }
 
-      // Upload PDF file if provided
-      if (pdfFile) {
-        setUploadProgress(prev => ({ ...prev, pdf: 50 }));
+      // Upload document if provided
+      if (selectedFile) {
+        setUploadProgress(75);
         try {
-          const pdfResult = await simpleUpload(pdfFile, 'pdf');
-          if (!pdfResult.success) {
-            setErrors({ pdfFile: pdfResult.error || 'Failed to upload PDF file' });
-            setUploading(false);
+          const fileResult = await simpleUpload(selectedFile, 'documents');
+          if (!fileResult.success) {
+            setError(fileResult.error || 'Failed to upload document');
+            setLoading(false);
             return;
           }
-          pdfFileUrl = pdfResult.url || '';
-          setUploadProgress(prev => ({ ...prev, pdf: 100 }));
-        } catch (error) {
-          setErrors({ pdfFile: 'Failed to upload PDF file' });
-          setUploading(false);
+          fileUrl = fileResult.url || '';
+          setUploadProgress(100);
+        } catch (err) {
+          setError('Failed to upload document');
+          setLoading(false);
           return;
         }
       }
 
-      const formData = {
-        name,
-        description,
-        category,
+      // Create magazine data
+      const magazineData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
         type,
         magzineType,
-        image: coverImageUrl,
-        file: pdfFileUrl,
-        coverImage,
-        pdfFile,
+        image: imageUrl,
+        file: fileUrl,
+        coverImage: selectedImage,
+        pdfFile: selectedFile
       };
-      
+
       if (onSubmit) {
-        onSubmit(formData);
+        onSubmit(magazineData);
       } else {
-        // Default behavior: differentiate between add and update
-        if (initialData) {
-          // Update operation
-          console.log('Updating magazine:', {
-            id: initialData.id,
-            originalTitle: initialData.title,
-            updatedData: {
-              name,
-              description,
-              category,
-              type,
-              image: coverImageUrl,
-              file: pdfFileUrl,
-            }
-          });
-        } else {
-          // Add operation
-          console.log('Adding new magazine:', {
-            name,
-            description,
-            category,
-            type,
-            image: coverImageUrl,
-            file: pdfFileUrl,
-          });
-        }
+        // Default behavior - redirect to magazines page
+        router.push('/magazines');
       }
-    } catch (error) {
-      console.error('Upload error:', error);
-      setErrors({ general: 'An unexpected error occurred during upload' });
-    } finally {
-      setUploading(false);
+
+      setLoading(false);
+      setUploadProgress(0);
+    } catch (err) {
+      setError('An unexpected error occurred');
+      setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -182,189 +179,246 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
     if (onCancel) {
       onCancel();
     } else {
-      // Default behavior: navigate back
       router.push('/magazines');
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto grid grid-cols-1 gap-6"
-    >
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Magazine Name
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-      </div>
-
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={3}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-          Access Type
-        </label>
-        <select
-          id="type"
-          value={type}
-          onChange={(e) => setType(e.target.value as 'free' | 'pro')}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        >
-          {magazineTypes.map((magType) => (
-            <option key={magType.value} value={magType.value}>
-              {magType.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="magzineType" className="block text-sm font-medium text-gray-700 mb-1">
-          Content Type
-        </label>
-        <select
-          id="magzineType"
-          value={magzineType}
-                          onChange={(e) => setMagzineType(e.target.value as 'magzine' | 'article' | 'digest')}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        >
-          {magazineContentTypes.map((contentType) => (
-            <option key={contentType.value} value={contentType.value}>
-              {contentType.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-          Category
-        </label>
-        <select
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        >
-          <option value="" disabled>
-            Select a category
-          </option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image</label>
-        <div className="flex items-center gap-4">
-          <input
-            id="coverImage"
-            type="file"
-            accept="image/*"
-            onChange={handleCoverImageChange}
-            disabled={uploading}
-            className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
-          />
-          {coverImage && (
-            <span className="text-xs text-gray-500 truncate max-w-xs">{coverImage.name}</span>
-          )}
-        </div>
-        {errors.coverImage && (
-          <p className="text-red-600 text-sm mt-1">{errors.coverImage}</p>
-        )}
-        {uploadProgress.cover > 0 && uploadProgress.cover < 100 && (
-          <div className="mt-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${uploadProgress.cover}%` }}
-              ></div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Uploading cover image... {uploadProgress.cover}%</p>
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
+      <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full mx-auto max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Add New Magazine</h3>
+            <button
+              onClick={onCancel}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Document File</label>
-        <div className="flex items-center gap-4">
-          <input
-            id="pdfFile"
-            type="file"
-            accept="application/pdf"
-            onChange={handlePdfFileChange}
-            disabled={uploading}
-            className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
-          />
-          {pdfFile && (
-            <span className="text-xs text-gray-500 truncate max-w-xs">{pdfFile.name}</span>
-          )}
         </div>
-        {errors.pdfFile && (
-          <p className="text-red-600 text-sm mt-1">{errors.pdfFile}</p>
-        )}
-        {uploadProgress.pdf > 0 && uploadProgress.pdf < 100 && (
-          <div className="mt-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${uploadProgress.pdf}%` }}
-              ></div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Uploading document... {uploadProgress.pdf}%</p>
+          )}
+
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h4 className="text-md font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h4>
+            
+            {/* Name Field */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Magazine Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                placeholder="Enter magazine name"
+                required
+              />
+            </div>
+
+            {/* Description Field */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                placeholder="Enter magazine description"
+              />
+            </div>
+
+            {/* Category Field */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        )}
-      </div>
 
-      {errors.general && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600 text-sm">{errors.general}</p>
-        </div>
-      )}
+          {/* Type and Access Settings */}
+          <div className="space-y-4">
+            <h4 className="text-md font-medium text-gray-900 border-b border-gray-200 pb-2">Type & Access Settings</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Content Type */}
+              <div>
+                <label htmlFor="magzineType" className="block text-sm font-medium text-gray-700 mb-1">
+                  Content Type *
+                </label>
+                <select
+                  id="magzineType"
+                  value={magzineType}
+                  onChange={(e) => setMagzineType(e.target.value as 'magzine' | 'article' | 'digest')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  required
+                >
+                  {magazineContentTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      <div className="flex gap-4 mt-4">
-        <button
-          type="submit"
-          disabled={uploading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {uploading ? 'Uploading...' : 'Submit'}
-        </button>
-        <button
-          type="button"
-          onClick={handleCancel}
-          disabled={uploading}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-md transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Cancel
-        </button>
+              {/* Access Type */}
+              <div>
+                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                  Access Type *
+                </label>
+                <select
+                  id="type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value as 'free' | 'pro')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  required
+                >
+                  {magazineTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* File Uploads */}
+          <div className="space-y-4">
+            <h4 className="text-md font-medium text-gray-900 border-b border-gray-200 pb-2">File Uploads</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Cover Image */}
+              <div>
+                <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
+                  Cover Image *
+                </label>
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  required
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Cover preview"
+                      className="w-20 h-28 object-cover rounded-lg border border-gray-200"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Document File */}
+              <div>
+                <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
+                  Document File *
+                </label>
+                <input
+                  type="file"
+                  id="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                  required
+                />
+                {selectedFile && (
+                  <p className="mt-1 text-sm text-gray-600">{selectedFile.name}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Upload Progress */}
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Uploading document...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {/* Form Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || uploadProgress > 0 && uploadProgress < 100}
+              className="flex-1 px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating...
+                </div>
+              ) : (
+                'Create Magazine'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 
