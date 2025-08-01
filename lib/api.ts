@@ -392,6 +392,33 @@ export const deleteMagazine = async (mid: number): Promise<{ success: boolean; m
   }
 };
 
+// Delete user API
+export const deleteUser = async (uid: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const token = getToken();
+    if (!token) {
+      return { success: false, message: 'No authentication token found' };
+    }
+
+    const response = await fetch('/api/users/delete', {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ uid }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, message: errorData.message || errorData.error || 'Failed to delete user' };
+    }
+
+    const data = await response.json();
+    return { success: true, message: data.message || 'User deleted successfully' };
+  } catch (error: unknown) {
+    console.error('Error deleting user:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+};
+
 export const logoutUser = (): void => {
   clearAuthData();
 };

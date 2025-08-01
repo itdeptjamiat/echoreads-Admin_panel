@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { deleteUser } from '../../lib/api';
 
 interface User {
   _id: string;
@@ -49,14 +50,33 @@ const UserTable: React.FC<UserTableProps> = ({
   };
 
   const handleDeleteClick = (uid: number, name: string) => {
-    // Delete functionality removed - will be set up later
-    console.log('Delete functionality temporarily disabled');
+    setShowDeleteConfirm(uid.toString());
+    setDeleteError(null);
   };
 
   const handleDeleteConfirm = async (uidString: string) => {
-    // Delete functionality removed - will be set up later
-    console.log('Delete functionality temporarily disabled');
+    try {
+      setDeletingId(uidString);
+      setDeleteError(null);
+      
+      const result = await deleteUser(uidString);
+      
+      if (result.success) {
+        // Close modal and refresh the list
         setShowDeleteConfirm(null);
+        setDeletingId(null);
+        if (onRefresh) {
+          onRefresh();
+        }
+      } else {
+        setDeleteError(result.message || 'Failed to delete user');
+        setDeletingId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setDeleteError('An unexpected error occurred');
+      setDeletingId(null);
+    }
   };
 
   const handleDeleteCancel = () => {
@@ -229,10 +249,10 @@ const UserTable: React.FC<UserTableProps> = ({
                       </button>
                       <button
                   onClick={() => handleDeleteClick(user.uid, user.name)}
-                  disabled={deletingId === user._id}
+                  disabled={deletingId === user.uid.toString()}
                   className="inline-flex items-center justify-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {deletingId === user._id ? (
+                  {deletingId === user.uid.toString() ? (
                     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -317,8 +337,13 @@ const UserTable: React.FC<UserTableProps> = ({
                     <div className="mt-2">
                       <p className="text-sm text-slate-500">
                         Are you sure you want to delete this user? This action cannot be undone.
-                </p>
-              </div>
+                      </p>
+                      {deleteError && (
+                        <div className="mt-3 p-3 text-red-600 bg-red-100 border border-red-200 rounded-md">
+                          <p className="text-sm">{deleteError}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
