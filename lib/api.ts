@@ -365,7 +365,32 @@ export const createMagazine = async (magazineData: {
   }
 };
 
-// Delete functions removed - will be set up later
+// Delete magazine API
+export const deleteMagazine = async (mid: number): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const token = getToken();
+    if (!token) {
+      return { success: false, message: 'No authentication token found' };
+    }
+
+    const response = await fetch('/api/magazines/delete', {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ mid }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, message: errorData.message || errorData.error || 'Failed to delete magazine' };
+    }
+
+    const data = await response.json();
+    return { success: true, message: data.message || 'Magazine deleted successfully' };
+  } catch (error: unknown) {
+    console.error('Error deleting magazine:', error);
+    return { success: false, message: 'An unexpected error occurred' };
+  }
+};
 
 export const logoutUser = (): void => {
   clearAuthData();

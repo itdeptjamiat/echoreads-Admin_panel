@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { deleteMagazine } from '../../lib/api';
 
 interface Magazine {
   id?: string;
@@ -52,14 +53,39 @@ const MagazineTable: React.FC<MagazineTableProps> = ({
   };
 
   const handleDeleteClick = (id: string, name: string) => {
-    // Delete functionality removed - will be set up later
-    console.log('Delete functionality temporarily disabled');
+    setShowDeleteConfirm(id);
+    setDeleteError(null);
   };
 
   const handleDeleteConfirm = async (id: string) => {
-    // Delete functionality removed - will be set up later
-    console.log('Delete functionality temporarily disabled');
-    setShowDeleteConfirm(null);
+    try {
+      setDeletingId(id);
+      setDeleteError(null);
+      
+      // Convert id to number (mid)
+      const mid = parseInt(id);
+      if (isNaN(mid)) {
+        throw new Error('Invalid magazine ID');
+      }
+      
+      const result = await deleteMagazine(mid);
+      
+      if (result.success) {
+        // Close modal and refresh the list
+        setShowDeleteConfirm(null);
+        setDeletingId(null);
+        if (onRefresh) {
+          onRefresh();
+        }
+      } else {
+        setDeleteError(result.message || 'Failed to delete magazine');
+        setDeletingId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting magazine:', error);
+      setDeleteError('An unexpected error occurred');
+      setDeletingId(null);
+    }
   };
 
   const handleDeleteCancel = () => {
