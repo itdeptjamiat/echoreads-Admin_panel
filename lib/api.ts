@@ -528,3 +528,89 @@ export const isAuthenticated = (): boolean => {
 export const getCurrentUser = (): User | null => {
   return getUser();
 }; 
+
+// Categories API functions
+export const fetchCategories = async () => {
+  try {
+    const response = await fetch('/api/categories');
+    const data = await response.json();
+    
+    if (data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, message: data.message || 'Failed to fetch categories' };
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return { success: false, message: 'Failed to fetch categories' };
+  }
+};
+
+export const addCategory = async (name: string) => {
+  try {
+    const response = await fetch('/api/categories', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, message: data.message || 'Failed to add category' };
+    }
+  } catch (error) {
+    console.error('Error adding category:', error);
+    return { success: false, message: 'Failed to add category' };
+  }
+};
+
+export const deleteCategory = async (categoryName: string) => {
+  try {
+    const response = await fetch('/api/categories', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ categoryName }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, message: data.message || 'Failed to delete category' };
+    }
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    return { success: false, message: 'Failed to delete category' };
+  }
+};
+
+export const updateCategory = async (oldName: string, newName: string) => {
+  try {
+    const response = await fetch('/api/categories', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ oldName, newName }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, message: data.message || 'Failed to update category' };
+    }
+  } catch (error) {
+    console.error('Error updating category:', error);
+    return { success: false, message: 'Failed to update category' };
+  }
+}; 

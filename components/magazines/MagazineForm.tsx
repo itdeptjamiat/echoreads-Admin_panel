@@ -1,12 +1,9 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Magazine } from '../../lib/mockData';
 import { uploadToCloudflare, validateFile } from '../../lib/cloudflareStorage';
 import { simpleUpload } from '../../lib/simpleUpload';
-
-const categories = [
-  'Technology', 'Fashion', 'Health', 'Business', 'Travel', 'Food', 'Sports', 'Science', 'Arts', 'Environment', 'Finance', 'Education', 'Lifestyle', 'Automotive', 'Home', 'other'
-];
+import { fetchCategories } from '../../lib/api';
 
 const magazineTypes = [
   { value: 'free', label: 'Free' },
@@ -49,10 +46,37 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string>('');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const router = useRouter();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Fetch categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const result = await fetchCategories();
+        if (result.success && result.data) {
+          setCategories(result.data);
+        } else {
+          console.error('Failed to load categories:', result.message);
+          // Fallback to default categories if API fails
+          setCategories(['Technology', 'Fashion', 'Sports', 'Health', 'Business', 'Travel', 'Food', 'Science', 'Arts', 'Environment', 'Finance', 'Education', 'Lifestyle', 'Automotive', 'Home', 'other']);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        // Fallback to default categories
+        setCategories(['Technology', 'Fashion', 'Sports', 'Health', 'Business', 'Travel', 'Food', 'Science', 'Arts', 'Environment', 'Finance', 'Education', 'Lifestyle', 'Automotive', 'Home', 'other']);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -268,11 +292,15 @@ const MagazineForm: React.FC<MagazineFormProps> = ({ onSubmit, onCancel, initial
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
               >
                 <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
+                {categoriesLoading ? (
+                  <option value="">Loading categories...</option>
+                ) : (
+                  categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>
